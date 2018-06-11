@@ -3,16 +3,12 @@ import argparse
 from collections import defaultdict
 
 
-def find_duplicates(files_info):
-    duplicates = defaultdict(list)
-    for path, filename, size in files_info:
-        duplicates[filename+', '+str(size)].append(path)
-    return {key: value for key, value in duplicates.items() if len(value) > 1}
-
-
-def scan_folder(directory_path):
-    return [(path, filename, os.stat(os.path.join(path, filename)).st_size)
-            for path, dirs, files in os.walk(directory_path) for filename in files]
+def find_duplicates(directory_path):
+    files_info = defaultdict(list)
+    for path, dirs, filemanes in os.walk(directory_path):
+        for filename in filemanes:
+            files_info[(filename, os.stat(os.path.join(path, filename)).st_size)].append(path)
+    return {file_info: paths for file_info, paths in files_info.items() if len(paths) > 1}
 
 
 def create_argparser():
@@ -30,15 +26,18 @@ def create_argparser():
 if __name__ == '__main__':
     argparser = create_argparser()
     directory_path = argparser.directory
-    files_info = scan_folder(directory_path)
-    duplicates = find_duplicates(files_info)
+    if not os.path.isdir(directory_path):
+        print('Directory {} doesn\'t exist! Try another directory!'.format(directory_path))
+        exit()
+    else:
+        duplicates = find_duplicates(directory_path)
     if duplicates:
         print('Duplicates found: ')
         print('-----------------------')
-        for file, pathways in duplicates.items():
-            filename, size = file.split(', ')
+        for file_info, paths in duplicates.items():
+            filename, size = file_info
             print('File with name {} is repeated in the following folders:'.format(filename))
-            for path in pathways:
+            for path in paths:
                 print(path)
         print('_______________________')
     else:
