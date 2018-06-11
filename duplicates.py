@@ -1,29 +1,45 @@
 import os
 import argparse
+from collections import defaultdict
 
 
 def find_duplicates(files_info):
-    seen = dict()
-    for path, file in files_info:
-        if file in seen.keys() and seen[file]['size'] == os.stat(os.path.join(path, file)).st_size:
-            print(os.path.join(path, file), ' and ', os.path.join(seen[file]['path'], file), ' are duplicates!')
-        else:
-            seen[file] = {'path': path, 'size': os.stat(os.path.join(path, file)).st_size}
-    return None
+    duplicates = defaultdict(list)
+    for path, filename, size in files_info:
+        duplicates[filename+', '+str(size)].append(path)
+    return {key: value for key, value in duplicates.items() if len(value) > 1}
 
 
-def scan_folder(folder):
-    return [(path, file) for path, dirs, files in os.walk(folder) for file in files]
+def scan_folder(directory_path):
+    return [(path, filename, os.stat(os.path.join(path, filename)).st_size)
+            for path, dirs, files in os.walk(directory_path) for filename in files]
 
 
-def argparser():
+def create_argparser():
     parser = argparse.ArgumentParser()
-    parser.add_argument('-f', '--folder', help='full path folder', required=True)
+    parser.add_argument(
+        '-d',
+        '--directory',
+        help='full path to the directory',
+        required=True
+    )
     args = parser.parse_args()
     return args
 
 
 if __name__ == '__main__':
-    args = argparser()
-    files = scan_folder(args.folder)
-    find_duplicates(files)
+    argparser = create_argparser()
+    directory_path = argparser.directory
+    files_info = scan_folder(directory_path)
+    duplicates = find_duplicates(files_info)
+    if duplicates:
+        print('Duplicates found: ')
+        print('-----------------------')
+        for file, pathways in duplicates.items():
+            filename, size = file.split(', ')
+            print('File with name {} is repeated in the following folders:'.format(filename))
+            for path in pathways:
+                print(path)
+        print('_______________________')
+    else:
+        print('No duplicates found')
