@@ -1,6 +1,6 @@
 # Anti-Duplicator
 
-The script scans the folder and looks for duplicate files in that folder and all subdirectories.
+Script scans the folder and looks for duplicate files in that folder and all subdirectories.
 
 # Quickstart
 
