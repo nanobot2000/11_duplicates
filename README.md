@@ -4,9 +4,9 @@ Script scans the folder and looks for duplicate files in that folder and all sub
 
 # Quickstart
 
-The script requires the installed Python interpreter version 3.6.
+The script requires the installed Python interpreter version 3.x.
 
-You have to run the script with the `-d`, `--directory` argument with path to directory.
+You have to run the script with the `-d`, `--directory` argument with the path to the directory.
 
 To call the help, run the script with the `-h` or `--help` option.
 
